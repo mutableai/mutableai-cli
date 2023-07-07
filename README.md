@@ -5,18 +5,19 @@ V1 of this CLI client is mostly for syncing changes made on the webapp (app.muta
 ## Prerequisites
 
 -   To run the CLI, you need to have Node.js installed
--   Optional: if you are planning to build from source, you need to install Webpack
 -   You need to have `git` CLI setup
 
 ## Installation guide
 
 ### Step 1. Build the script locally.
-
-`$ npm run build`
-
-`$ npm install -g .`
-
+```sh
+$ npm install                  #Install dev dependencies
+$ npm run build                #Build CLI
+$ npm install -g .             #Install CLI
+```
 Which will install the cli `mutableai_cli`
+
+Installing from NPM is coming soon.
 
 ### Step 2. Setup environment
 
@@ -28,8 +29,6 @@ Setup `~/.mutableai`
 USER_EMAIL=<account you used to sign in>
 USER_KEY=<key you generated in the webapp>
 ```
-
-Installing from NPM is coming soon.
 
 ### Step 3. Connect to the webapp
 Follow the instruction on the webapp. An example command is:
