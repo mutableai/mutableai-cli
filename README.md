@@ -12,11 +12,11 @@ V1 of this CLI client is mostly for syncing changes made on the webapp (app.muta
 
 ### Step 1. Build the script locally.
 
-`$ npm install`
-
 `$ npm run build`
 
-The minified script will be generated in the `cli/build/cli.js`
+`$ npm install -g .`
+
+Which will install the cli `mutableai_cli`
 
 ### Step 2. Setup environment
 
@@ -30,3 +30,8 @@ USER_KEY=<key you generated in the webapp>
 ```
 
 Installing from NPM is coming soon.
+
+### Step 3. Connect to the webapp
+Follow the instruction on the webapp. An example command is:
+
+`$ mutableai_cli sync <session id>`
