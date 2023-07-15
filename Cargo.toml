@@ -1,0 +1,10 @@
+[package]
+name = "mutableai-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.71"
+bollard = { version = "0.14.0", features = [ "ssl", "buildkit" ]}
+clap = { version = "4.3.11", features = ["derive"] }
+tokio = { version = "1.29.1", features = [ "full" ] }
