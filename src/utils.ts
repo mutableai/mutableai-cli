@@ -1,8 +1,8 @@
-const clear = require('clear') as typeof import('clear')
+const clear = require("clear") as typeof import("clear");
 
 function clearAndRenderBanner(): void {
-	clear()
+  clear();
 }
 
-export {}
-exports.clearAndRenderBanner = clearAndRenderBanner
+export {};
+exports.clearAndRenderBanner = clearAndRenderBanner;
