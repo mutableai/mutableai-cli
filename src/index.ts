@@ -4,7 +4,7 @@ const chalk = require("chalk");
 const boxen = require("boxen");
 const correctContractTestHandler = require("./correctContractTest");
 
-const main = () => {
+const main = async () => {
   utils.clearAndRenderBanner();
   if (process.argv.length < 3) {
     console.error(
@@ -46,12 +46,12 @@ const main = () => {
     mainFile.main(process.argv[3]);
     return;
   } else if (process.argv[2] == "correct_contract_test") {
-    correctContractTestHandler.correctContractTest(
+    await correctContractTestHandler.correctContractTest(
       process.argv[3],
       process.argv[4],
       process.argv[5]
     );
-    return;
+    process.exit();
   }
 };
 
