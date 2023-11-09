@@ -1,9 +1,10 @@
 {
   "name": "mutableai_cli",
-  "version": "1.0.0",
+  "version": "1.0.9",
   "main": "./build/cli.js",
   "bin": {
-    "mutableai_cli": "./build/cli.js"
+		"mutableai": "./build/cli.js", 
+		"mutable.ai": "./build/cli.js"
   },
   "author": "Ken Liao <kenliao94@gmail.com>",
   "license": "MIT",
