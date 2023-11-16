@@ -41,9 +41,10 @@ async function correctContractTest(
     let output;
     try {
       output = await exec(runCommand);
-      feedback = output.stdout;
+      feedback = "stdout: " + output.stdout + "\n" + "stderr:" + output.stderr;
     } catch (error) {
-      feedback = error as string;
+      output = error as {stdout: string, stderr: string}
+      feedback = "stdout: " + output.stdout + "\n" + "stderr:" + output.stderr;
     }
     console.log(feedback);
     const wantToProceed = await askToProceed();
