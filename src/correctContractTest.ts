@@ -6,10 +6,9 @@ const exec = util.promisify(
 const dotenv = require("dotenv");
 const path = require("path") as typeof import("path");
 const os = require("os");
-const axios = require("axios").default;
 const readline = require("readline/promises");
-const temp = require("./tempDemo");
 const ws = require("ws");
+const commonUtil = require("./utils")
 
 const DEFAULT_ITERATION_TIME = 3;
 const DEBUGGER_ENDPOINT_URL =
@@ -28,15 +27,17 @@ async function correctContractTest(
   }
   let testRunSuccessfully = false;
   let iteration = 0;
+  let fileContent = ""
   while (iteration < DEFAULT_ITERATION_TIME && !testRunSuccessfully) {
-    let fileContent = "";
-    try {
-      fileContent = await fileUtils.readFile(testFilePath, "utf-8");
-    } catch (error) {
-      console.error("Error reading file:", error);
-      return;
+    if (fileContent == "") {
+      try {
+        fileContent = await fileUtils.readFile(testFilePath, "utf-8");
+      } catch (error) {
+        console.error("Error reading file:", error);
+        return;
+      }
     }
-    console.log(`running command: ${runCommand}`);
+    commonUtil.logInCyan(`running command: ${runCommand}`);
     let feedback = "";
     let output;
     try {
@@ -57,8 +58,9 @@ async function correctContractTest(
         fileContent,
         feedback
       );
-      console.log("Fix suggested by AI:");
+      commonUtil.logInCyan("Fix suggested by AI:");
       console.log(newFileContent);
+      fileContent = newFileContent
       const wantToModifyFile = await askToModifyFile();
       if (wantToModifyFile) {
         fileUtils.modifyFile(testFilePath, newFileContent);
@@ -96,7 +98,7 @@ async function correctTest(
     };
     let debugOutput = "";
     wsClient.onopen = () => {
-      console.log("starts generating fix");
+      commonUtil.logInCyan("starts generating fix");
       wsClient.send(JSON.stringify(reqMsg));
     };
     wsClient.onmessage = async (event: any) => {
@@ -121,29 +123,17 @@ async function correctTest(
       }
     };
     wsClient.onclose = () => {
-      console.log("ws closed");
       resolve("");
     };
     wsClient.onerror = (error: any) => {
       console.log("ws errored");
+      console.log(error)
       reject();
     };
   });
 
   return wsPromise;
 }
-
-// async function correctTestDemo(
-//   accessToken: string,
-//   branch: string,
-//   repoUrl: string,
-//   filePath: string,
-//   fileContent: string,
-//   stdout: string
-// ): Promise<string> {
-//   await new Promise((resolve) => setTimeout(resolve, 10 * 1000));
-//   return temp.correct_source_code;
-// }
 
 async function askToProceed() {
   const rl = readline.createInterface({
@@ -152,7 +142,7 @@ async function askToProceed() {
   });
   try {
     const answer = await rl.question(
-      "Do you want to proceed with fixing the test Y/N "
+      "\x1b[33mDo you want to proceed with fixing the test Y/N\x1b[0m"
     );
     const wantToProceed = answer.trim() === "Y" || answer.trim() === "y";
     return wantToProceed;
@@ -170,7 +160,7 @@ async function askToModifyFile() {
   });
   try {
     const answer = await rl.question(
-      "Do you want to accept the change proposed by AI Y/N "
+      "\x1b[33mDo you want to accept the change proposed by AI Y/N\x1b[0m"
     );
     const wantToProceed = answer.trim() === "Y" || answer.trim() === "y";
     return wantToProceed;
