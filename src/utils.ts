@@ -5,11 +5,11 @@ function clearAndRenderBanner(): void {
 }
 
 function logInCyan(msg: string): void {
-  console.log(`\x1b[36m${msg}\x1b[0m`)
+  console.log(`\x1b[36m${msg}\x1b[0m`);
 }
 
 function logInYellow(msg: string): void {
-  console.log(`\x1b[33m${msg}\x1b[0m`)
+  console.log(`\x1b[33m${msg}\x1b[0m`);
 }
 
 export {};

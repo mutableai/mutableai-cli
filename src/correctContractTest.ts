@@ -8,7 +8,7 @@ const path = require("path") as typeof import("path");
 const os = require("os");
 const readline = require("readline/promises");
 const ws = require("ws");
-const commonUtil = require("./utils")
+const commonUtil = require("./utils");
 
 const DEFAULT_ITERATION_TIME = 3;
 const DEBUGGER_ENDPOINT_URL =
@@ -28,7 +28,8 @@ async function correctContractTest(
   }
   let testRunSuccessfully = false;
   let iteration = 0;
-  let fileContent = ""
+  let fileContent = "";
+  const msgs_history: { role: string; context: string }[] = [];
   while (iteration < DEFAULT_ITERATION_TIME && !testRunSuccessfully) {
     if (fileContent == "") {
       try {
@@ -45,7 +46,7 @@ async function correctContractTest(
       output = await exec(runCommand);
       feedback = "stdout: " + output.stdout + "\n" + "stderr:" + output.stderr;
     } catch (error) {
-      output = error as {stdout: string, stderr: string}
+      output = error as { stdout: string; stderr: string };
       feedback = "stdout: " + output.stdout + "\n" + "stderr:" + output.stderr;
     }
     console.log(feedback);
@@ -64,7 +65,7 @@ async function correctContractTest(
       );
       commonUtil.logInCyan("Fix suggested by AI:");
       console.log(newFileContent);
-      fileContent = newFileContent
+      fileContent = newFileContent;
       let wantToModifyFile = true;
       if (!isAutomatic) {
         wantToModifyFile = await askToModifyFile();
@@ -134,7 +135,7 @@ async function correctTest(
     };
     wsClient.onerror = (error: any) => {
       console.log("ws errored");
-      console.log(error)
+      console.log(error);
       reject();
     };
   });
