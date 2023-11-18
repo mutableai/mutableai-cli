@@ -17,7 +17,8 @@ const DEBUGGER_ENDPOINT_URL =
 async function correctContractTest(
   githubUrl: string,
   runCommand: string,
-  testFilePath: string
+  testFilePath: string,
+  isAutomatic?: boolean
 ) {
   dotenv.config({ path: path.resolve(os.homedir() + "/.mutableai") });
   if (!process.env.ACCESS_TOKEN) {
@@ -48,7 +49,10 @@ async function correctContractTest(
       feedback = "stdout: " + output.stdout + "\n" + "stderr:" + output.stderr;
     }
     console.log(feedback);
-    const wantToProceed = await askToProceed();
+    let wantToProceed = true;
+    if (!isAutomatic) {
+      wantToProceed = await askToProceed();
+    }
     if (wantToProceed) {
       const newFileContent = await correctTest(
         process.env.ACCESS_TOKEN,
@@ -61,7 +65,10 @@ async function correctContractTest(
       commonUtil.logInCyan("Fix suggested by AI:");
       console.log(newFileContent);
       fileContent = newFileContent
-      const wantToModifyFile = await askToModifyFile();
+      let wantToModifyFile = true;
+      if (!isAutomatic) {
+        wantToModifyFile = await askToModifyFile();
+      }
       if (wantToModifyFile) {
         fileUtils.modifyFile(testFilePath, newFileContent);
       }
@@ -145,6 +152,7 @@ async function askToProceed() {
       "\x1b[33mDo you want to proceed with fixing the test Y/N\x1b[0m"
     );
     const wantToProceed = answer.trim() === "Y" || answer.trim() === "y";
+    rl.close();
     return wantToProceed;
   } catch (err) {
     rl.close();
@@ -163,6 +171,7 @@ async function askToModifyFile() {
       "\x1b[33mDo you want to accept the change proposed by AI Y/N\x1b[0m"
     );
     const wantToProceed = answer.trim() === "Y" || answer.trim() === "y";
+    rl.close();
     return wantToProceed;
   } catch (err) {
     rl.close();
