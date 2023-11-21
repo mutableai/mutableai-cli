@@ -29,7 +29,7 @@ async function correctContractTest(
   let testRunSuccessfully = false;
   let iteration = 0;
   let fileContent = "";
-  const msgs_history: { role: string; context: string }[] = [];
+  const edit_history: string[] = [];
   while (iteration < DEFAULT_ITERATION_TIME && !testRunSuccessfully) {
     if (fileContent == "") {
       try {
@@ -61,7 +61,8 @@ async function correctContractTest(
         githubUrl,
         testFilePath,
         fileContent,
-        feedback
+        feedback,
+        edit_history
       );
       commonUtil.logInCyan("Fix suggested by AI:");
       console.log(newFileContent);
@@ -72,6 +73,7 @@ async function correctContractTest(
       }
       if (wantToModifyFile) {
         fileUtils.modifyFile(testFilePath, newFileContent);
+        edit_history.push(newFileContent);
       }
     } else {
       console.log("User chose not to proceed.");
@@ -87,7 +89,8 @@ async function correctTest(
   repoUrl: string,
   filePath: string,
   fileContent: string,
-  stdout: string
+  stdout: string,
+  edit_history: string[]
 ): Promise<string> {
   const wsPromise: Promise<string> = new Promise((resolve, reject) => {
     const wsClient = new ws.WebSocket(DEBUGGER_ENDPOINT_URL, [
@@ -103,6 +106,7 @@ async function correctTest(
       debug_type: "contract_test",
       console_output: stdout,
       source_code: source_code_dict,
+      edit_history: edit_history,
     };
     let debugOutput = "";
     wsClient.onopen = () => {
