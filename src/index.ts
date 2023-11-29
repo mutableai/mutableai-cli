@@ -20,9 +20,9 @@ const main = async () => {
       return;
     }
   } else if (process.argv[2] == "correct_contract_test") {
-    if (process.argv.length != 6) {
+    if (process.argv.length != 6 && process.argv.length != 7) {
       console.error(
-        "[ERROR] Failed to run CLI. The command is mutableai_cli correct_contract_test <github repo url> <run command> <test file path>"
+        "[ERROR] Failed to run CLI. The command is mutableai_cli correct_contract_test <github repo url> <run command> <test file path> <-a for automatic without human feedback>"
       );
       return;
     }
@@ -46,10 +46,15 @@ const main = async () => {
     mainFile.main(process.argv[3]);
     return;
   } else if (process.argv[2] == "correct_contract_test") {
+    let isAutomatic = false;
+    if (process.argv.length == 7 && process.argv[6] == "-a") {
+      isAutomatic = true;
+    }
     await correctContractTestHandler.correctContractTest(
       process.argv[3],
       process.argv[4],
-      process.argv[5]
+      process.argv[5],
+      isAutomatic,
     );
     process.exit();
   }

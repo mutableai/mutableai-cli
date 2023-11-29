@@ -42,14 +42,23 @@ async function correctContractTest(
     commonUtil.logInCyan(`running command: ${runCommand}`);
     let feedback = "";
     let output;
+    let commandFailed = false;
     try {
       output = await exec(runCommand);
       feedback = "stdout: " + output.stdout + "\n" + "stderr:" + output.stderr;
     } catch (error) {
+      commandFailed = true;
       output = error as { stdout: string; stderr: string };
       feedback = "stdout: " + output.stdout + "\n" + "stderr:" + output.stderr;
     }
     console.log(feedback);
+    // Detect if the test passed
+    const didTestPass = !commandFailed
+    if (didTestPass) {
+      commonUtil.logInCyan("The test passed. AI debugger stopped.")
+    }
+
+    // Proceed to fixing the test
     let wantToProceed = true;
     if (!isAutomatic) {
       wantToProceed = await askToProceed();
