@@ -54,7 +54,7 @@ const main = async () => {
       process.argv[3],
       process.argv[4],
       process.argv[5],
-      isAutomatic,
+      isAutomatic
     );
     process.exit();
   }

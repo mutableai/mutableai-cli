@@ -52,10 +52,13 @@ async function correctContractTest(
       feedback = "stdout: " + output.stdout + "\n" + "stderr:" + output.stderr;
     }
     console.log(feedback);
-    // Detect if the test passed
-    const didTestPass = !commandFailed
+    // Detect if the test has passed
+    const didTestPass = !commandFailed;
     if (didTestPass) {
-      commonUtil.logInCyan("The test passed. AI debugger stopped.")
+      commonUtil.logInCyan("The test passed. AI debugger stopped.");
+      break;
+    } else {
+      commonUtil.logInCyan("The test didn't pass.");
     }
 
     // Proceed to fixing the test
@@ -85,7 +88,7 @@ async function correctContractTest(
         edit_history.push(newFileContent);
       }
     } else {
-      console.log("User chose not to proceed.");
+      commonUtil.logInCyan("User chose not to proceed.");
       return;
     }
     iteration++;
@@ -163,9 +166,9 @@ async function askToProceed() {
   });
   try {
     const answer = await rl.question(
-      "\x1b[33mDo you want to proceed with fixing the test Y/N\x1b[0m"
+      "\x1b[33mDo you want to proceed with fixing the test Y/N (default Y)\x1b[0m"
     );
-    const wantToProceed = answer.trim() === "Y" || answer.trim() === "y";
+    const wantToProceed = answer.trim() === "Y" || answer.trim() === "y" || answer.trim() === "";
     rl.close();
     return wantToProceed;
   } catch (err) {
