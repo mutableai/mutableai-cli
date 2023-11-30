@@ -29,7 +29,7 @@ async function correctContractTest(
   let testRunSuccessfully = false;
   let iteration = 0;
   let fileContent = "";
-  const edit_history: string[] = [];
+  const edit_history: { src_code: string; console_output: string }[] = [];
   while (iteration < DEFAULT_ITERATION_TIME && !testRunSuccessfully) {
     if (fileContent == "") {
       try {
@@ -51,6 +51,8 @@ async function correctContractTest(
       output = error as { stdout: string; stderr: string };
       feedback = "stdout: " + output.stdout + "\n" + "stderr:" + output.stderr;
     }
+    // Push source code and console output pair to history
+    edit_history.push({ src_code: fileContent, console_output: feedback });
     console.log(feedback);
     // Detect if the test has passed
     const didTestPass = !commandFailed;
@@ -67,6 +69,7 @@ async function correctContractTest(
       wantToProceed = await askToProceed();
     }
     if (wantToProceed) {
+      commonUtil.logInCyan("Kicking off AI assisted test repair.");
       const newFileContent = await correctTest(
         process.env.ACCESS_TOKEN,
         "main",
@@ -85,7 +88,6 @@ async function correctContractTest(
       }
       if (wantToModifyFile) {
         fileUtils.modifyFile(testFilePath, newFileContent);
-        edit_history.push(newFileContent);
       }
     } else {
       commonUtil.logInCyan("User chose not to proceed.");
@@ -102,7 +104,7 @@ async function correctTest(
   filePath: string,
   fileContent: string,
   stdout: string,
-  edit_history: string[]
+  edit_history: { src_code: string; console_output: string }[]
 ): Promise<string> {
   const wsPromise: Promise<string> = new Promise((resolve, reject) => {
     const wsClient = new ws.WebSocket(DEBUGGER_ENDPOINT_URL, [
@@ -122,7 +124,7 @@ async function correctTest(
     };
     let debugOutput = "";
     wsClient.onopen = () => {
-      commonUtil.logInCyan("starts generating fix");
+      commonUtil.logInCyan("Starts generating fix");
       wsClient.send(JSON.stringify(reqMsg));
     };
     wsClient.onmessage = async (event: any) => {
@@ -168,7 +170,8 @@ async function askToProceed() {
     const answer = await rl.question(
       "\x1b[33mDo you want to proceed with fixing the test Y/N (default Y)\x1b[0m"
     );
-    const wantToProceed = answer.trim() === "Y" || answer.trim() === "y" || answer.trim() === "";
+    const wantToProceed =
+      answer.trim() === "Y" || answer.trim() === "y" || answer.trim() === "";
     rl.close();
     return wantToProceed;
   } catch (err) {
