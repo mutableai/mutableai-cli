@@ -10,7 +10,7 @@ const readline = require("readline/promises");
 const ws = require("ws");
 const commonUtil = require("./utils");
 
-const DEFAULT_ITERATION_TIME = 3;
+const DEFAULT_ITERATION_TIME = 10;
 const DEBUGGER_ENDPOINT_URL =
   "wss://70zxlqo8jd.execute-api.us-east-1.amazonaws.com/prod/";
 
@@ -39,6 +39,7 @@ async function correctContractTest(
         return;
       }
     }
+    commonUtil.logInCyan(`Attempt: #${iteration + 1}`);
     commonUtil.logInCyan(`running command: ${runCommand}`);
     let feedback = "";
     let output;
