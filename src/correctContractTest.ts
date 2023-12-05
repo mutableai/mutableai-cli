@@ -139,7 +139,7 @@ async function correctTest(
       console_output: stdout,
       source_code: source_code_dict,
       edit_history: edit_history,
-      consumerTestCode: consumerTestCode,
+      consumer_test_code: consumerTestCode,
     };
     let debugOutput = "";
     wsClient.onopen = () => {
