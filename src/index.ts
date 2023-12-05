@@ -20,7 +20,7 @@ const main = async () => {
       return;
     }
   } else if (process.argv[2] == "correct_contract_test") {
-    if (process.argv.length != 6 && process.argv.length != 7) {
+    if (process.argv.length < 4) {
       console.error(
         "[ERROR] Failed to run CLI. The command is mutableai_cli correct_contract_test <github repo url> <run command> <test file path> <-a for automatic without human feedback>"
       );
@@ -46,18 +46,62 @@ const main = async () => {
     mainFile.main(process.argv[3]);
     return;
   } else if (process.argv[2] == "correct_contract_test") {
-    let isAutomatic = false;
-    if (process.argv.length == 7 && process.argv[6] == "-a") {
-      isAutomatic = true;
-    }
+    const isAutomaticValue = findFlagValue(
+      process.argv,
+      "--automatic",
+      true,
+      false
+    );
+    const isAutomatic = isAutomaticValue ? true : false;
+    const command = findFlagValue(process.argv, "--command");
+    const repoUrl = findFlagValue(process.argv, "--url");
+    const testFilePath = findFlagValue(process.argv, "--test-file-path");
+    const consumerTestFilePath = findFlagValue(
+      process.argv,
+      "--consumer-test-file-path",
+      true,
+      true
+    );
     await correctContractTestHandler.correctContractTest(
-      process.argv[3],
-      process.argv[4],
-      process.argv[5],
-      isAutomatic
+      repoUrl,
+      command,
+      testFilePath,
+      isAutomatic,
+      consumerTestFilePath
     );
     process.exit();
   }
 };
+
+function findFlagValue(
+  argv: string[],
+  flagValue: string,
+  isOptional = false,
+  hasValue = true
+): string | null {
+  if (!flagValue.startsWith("--")) {
+    throw new Error(`${flagValue} needs to start with -`);
+  }
+  const flagIndex = argv.indexOf(flagValue);
+  if (flagIndex >= 0) {
+    if (hasValue && flagIndex + 1 >= argv.length) {
+      throw new Error(`${flagValue} is mal-formed`);
+    }
+    if (hasValue) {
+      const retrievedflagValue = argv[flagIndex + 1];
+      if (retrievedflagValue.startsWith("-")) {
+        throw new Error(`${flagValue} is mal-formed`);
+      }
+      return retrievedflagValue;
+    } else {
+      return "true";
+    }
+  } else {
+    if (!isOptional) {
+      throw new Error(`${flagValue} not found`);
+    }
+    return null;
+  }
+}
 
 main();

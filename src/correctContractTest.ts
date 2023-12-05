@@ -18,7 +18,8 @@ async function correctContractTest(
   githubUrl: string,
   runCommand: string,
   testFilePath: string,
-  isAutomatic?: boolean
+  isAutomatic?: boolean,
+  consumerTestFilePath?: string
 ) {
   dotenv.config({ path: path.resolve(os.homedir() + "/.mutableai") });
   if (!process.env.ACCESS_TOKEN) {
@@ -70,6 +71,10 @@ async function correctContractTest(
       wantToProceed = await askToProceed();
     }
     if (wantToProceed) {
+      let consumerTestCode = undefined;
+      if (consumerTestFilePath) {
+        consumerTestCode = await getConsumerTestCode(consumerTestFilePath);
+      }
       commonUtil.logInCyan("Kicking off AI assisted test repair.");
       const newFileContent = await correctTest(
         process.env.ACCESS_TOKEN,
@@ -78,7 +83,8 @@ async function correctContractTest(
         testFilePath,
         fileContent,
         feedback,
-        edit_history
+        edit_history,
+        consumerTestCode
       );
       commonUtil.logInCyan("Fix suggested by AI:");
       console.log(newFileContent);
@@ -98,6 +104,16 @@ async function correctContractTest(
   }
 }
 
+async function getConsumerTestCode(file_path: string): Promise<string> {
+  try {
+    const fileContent = await fileUtils.readFile(file_path, "utf-8");
+    return fileContent;
+  } catch (error) {
+    console.error("Error reading file:", error);
+    throw new Error(`Consumer test file not found at ${file_path}`);
+  }
+}
+
 async function correctTest(
   accessToken: string,
   branch: string,
@@ -105,7 +121,8 @@ async function correctTest(
   filePath: string,
   fileContent: string,
   stdout: string,
-  edit_history: { src_code: string; console_output: string }[]
+  edit_history: { src_code: string; console_output: string }[],
+  consumerTestCode?: string
 ): Promise<string> {
   const wsPromise: Promise<string> = new Promise((resolve, reject) => {
     const wsClient = new ws.WebSocket(DEBUGGER_ENDPOINT_URL, [
@@ -122,6 +139,7 @@ async function correctTest(
       console_output: stdout,
       source_code: source_code_dict,
       edit_history: edit_history,
+      consumerTestCode: consumerTestCode,
     };
     let debugOutput = "";
     wsClient.onopen = () => {
