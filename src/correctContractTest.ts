@@ -6,7 +6,7 @@ const exec = util.promisify(
 const dotenv = require("dotenv");
 const path = require("path") as typeof import("path");
 const os = require("os");
-const readline = require("node:readline/promises");
+const readline = require("node:readline");
 const ws = require("ws");
 const commonUtil = require("./utils");
 
@@ -185,19 +185,38 @@ async function askToProceed() {
     input: process.stdin,
     output: process.stdout,
   });
-  try {
-    const answer = await rl.question(
-      "\x1b[33mDo you want to proceed with fixing the test Y/N (default Y)\x1b[0m"
+  // try {
+  //   const answer = await rl.question(
+  //     "\x1b[33mDo you want to proceed with fixing the test Y/N (default Y)\x1b[0m"
+  //   );
+  //   const wantToProceed =
+  //     answer.trim() === "Y" || answer.trim() === "y" || answer.trim() === "";
+  //   rl.close();
+  //   return wantToProceed;
+  // } catch (err) {
+  //   rl.close();
+  //   console.log(`Error: `, err);
+  //   return false;
+  // }
+  const answerPromise: Promise<boolean> = new Promise((resolve, reject) => {
+    rl.question(
+      "\x1b[33mDo you want to proceed with fixing the test Y/N (default Y)\x1b[0m",
+      (answer: string) => {
+        try {
+          const wantToProceed =
+            answer.trim() === "Y" ||
+            answer.trim() === "y" ||
+            answer.trim() === "";
+          rl.close();
+          resolve(wantToProceed);
+        } catch (err) {
+          rl.close();
+          reject(err);
+        }
+      }
     );
-    const wantToProceed =
-      answer.trim() === "Y" || answer.trim() === "y" || answer.trim() === "";
-    rl.close();
-    return wantToProceed;
-  } catch (err) {
-    rl.close();
-    console.log(`Error: `, err);
-    return false;
-  }
+  });
+  return answerPromise;
 }
 
 async function askToModifyFile() {
