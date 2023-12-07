@@ -6,7 +6,7 @@ const exec = util.promisify(
 const dotenv = require("dotenv");
 const path = require("path") as typeof import("path");
 const os = require("os");
-const readline = require("readline/promises");
+const readline = require("node:readline/promises");
 const ws = require("ws");
 const commonUtil = require("./utils");
 
